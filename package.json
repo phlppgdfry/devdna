@@ -1,0 +1,24 @@
+{
+  "name": "devdna",
+  "version": "1.0.0",
+  "description": "🧬 Uncover your GitHub DNA — beautiful terminal + web report",
+  "type": "module",
+  "bin": {
+    "devdna": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev:web": "npm run dev --prefix web",
+    "build:web": "npm run build --prefix web"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1"
+  },
+  "keywords": ["github", "cli", "developer", "profile", "dna", "stats"],
+  "author": "Philippe Godfroy",
+  "license": "MIT"
+}
