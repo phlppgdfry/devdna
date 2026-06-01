@@ -56,12 +56,12 @@
   Chaotic Genius
 
   ──────────────────────────────────────────────────────────────────────
-  🧬 https://devdna.vercel.app/KippieG
+  🧬 https://devdna-xi.vercel.app/KippieG
 ```
 
 <br />
 
-[**Try it now →**](https://devdna.vercel.app) &nbsp;·&nbsp; [**Web Demo**](https://devdna.vercel.app/KippieG) &nbsp;·&nbsp; [**Report Bug**](https://github.com/KippieG/devdna/issues/new?template=bug_report.md) &nbsp;·&nbsp; [**Request Feature**](https://github.com/KippieG/devdna/issues/new?template=feature_request.md)
+[**Try it now →**](https://devdna-xi.vercel.app) &nbsp;·&nbsp; [**Web Demo**](https://devdna-xi.vercel.app/KippieG) &nbsp;·&nbsp; [**Report Bug**](https://github.com/KippieG/devdna/issues/new?template=bug_report.md) &nbsp;·&nbsp; [**Request Feature**](https://github.com/KippieG/devdna/issues/new?template=feature_request.md)
 
 </div>
 
@@ -127,7 +127,7 @@ devdna <username>
 
 ### Web
 
-Visit **[devdna.vercel.app/\<username\>](https://devdna.vercel.app)** — no install, just works.
+Visit **[devdna.vercel.app/\<username\>](https://devdna-xi.vercel.app)** — no install, just works.
 
 ---
 

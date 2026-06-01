@@ -161,7 +161,7 @@ export function render({ user, languages, timing, stats, dnaTraits, commitStyle,
   // ═══ FOOTER ═══
   console.log();
   sep();
-  console.log(`  ${chalk.cyan('🧬')} ${chalk.underline.cyan(`https://devdna.vercel.app/${user.login}`)}`);
+  console.log(`  ${chalk.cyan('🧬')} ${chalk.underline.cyan(`https://devdna-xi.vercel.app/${user.login}`)}`);
   console.log(`  ${chalk.gray('Set GITHUB_TOKEN for higher rate limits')}`);
   console.log();
 }
