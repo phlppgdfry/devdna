@@ -1,65 +1,91 @@
-import { redirect } from 'next/navigation';
-
+import Link from "next/link";
+import Search from "../components/search";
+import Helix from "../components/helix";
 export default function Home() {
-  async function search(formData: FormData) {
-    'use server';
-    const username = (formData.get('username') as string)?.trim();
-    if (username) redirect(`/${username}`);
-  }
-
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', gap: '2rem' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🧬</div>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#00ff9f', letterSpacing: '0.1em' }}>DEV DNA</h1>
-        <p style={{ color: '#64748b', marginTop: '0.5rem', fontSize: '1rem' }}>
-          Uncover your GitHub genetic code
-        </p>
-      </div>
-
-      <form action={search} style={{ display: 'flex', gap: '0.5rem', width: '100%', maxWidth: '420px' }}>
-        <input
-          name="username"
-          placeholder="github username"
-          autoFocus
-          required
-          style={{
-            flex: 1,
-            background: '#111',
-            border: '1px solid #1e293b',
-            borderRadius: '6px',
-            color: '#e2e8f0',
-            padding: '0.75rem 1rem',
-            fontSize: '1rem',
-            fontFamily: 'inherit',
-            outline: 'none',
-          }}
-        />
-        <button
-          type="submit"
-          style={{
-            background: '#00ff9f',
-            color: '#090909',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '0.75rem 1.25rem',
-            fontFamily: 'inherit',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            cursor: 'pointer',
-          }}
-        >
-          ANALYZE →
-        </button>
-      </form>
-
-      <div style={{ color: '#334155', fontSize: '0.8rem', textAlign: 'center' }}>
-        <p>or try in your terminal:</p>
-        <code style={{ color: '#00ff9f', fontSize: '0.85rem' }}>npx devdna KippieG</code>
-      </div>
-
-      <footer style={{ position: 'absolute', bottom: '1.5rem', color: '#1e293b', fontSize: '0.75rem' }}>
-        devdna · open source · by Philippe Godfroy
+    <main className="shell">
+      <nav className="nav">
+        <Link className="brand" href="/">
+          ✳ dev<span>dna</span>
+        </Link>
+        <a className="button" href="https://github.com/phlppgdfry/devdna">
+          View on GitHub ↗
+        </a>
+      </nav>
+      <section className="hero">
+        <div>
+          <span className="eyebrow">The developer identity lab</span>
+          <h1>
+            Your code
+            <br />
+            tells a <span className="gradient">story.</span>
+          </h1>
+          <p className="muted">
+            Are you a midnight maker, a mobile architect, or a language
+            explorer? Turn your public GitHub activity into a little
+            self-discovery.
+          </p>
+          <Search />
+          <div className="examples">
+            Take a peek: <Link href="/octocat">octocat</Link>
+            <Link href="/phlppgdfry">phlppgdfry</Link>
+            <Link href="/antfu">antfu</Link>
+          </div>
+          <p className="caption" style={{ marginTop: 18 }}>
+            No sign-up. Public data only. A playful portrait, never a developer
+            ranking.
+          </p>
+        </div>
+        <div className="panel specimen">
+          <div className="specimen-top">
+            <span className="eyebrow">DNA specimen / preview</span>
+            <span className="pill">Illustrative</span>
+          </div>
+          <Helix />
+          <h2>
+            One profile.
+            <br />
+            <span className="gradient">Many superpowers.</span>
+          </h2>
+          <div className="tags">
+            <span className="pill">☾ Night Owl</span>
+            <span className="pill">⌘ UI Craftsman</span>
+            <span className="pill">✦ True Polyglot</span>
+          </div>
+          <p className="caption" style={{ marginTop: 22 }}>
+            Your own report uses observed repository and activity patterns.
+            These example traits are just a preview.
+          </p>
+        </div>
+      </section>
+      <section className="feature-grid">
+        {[
+          [
+            "01 / DISCOVER",
+            "Meet your coding alter ego",
+            "Explore playful traits with a transparent explanation of the signals behind them.",
+          ],
+          [
+            "02 / EXPLORE",
+            "Find your rhythm",
+            "See your language mix, busy hours, and weekly activity in one clear report.",
+          ],
+          [
+            "03 / KEEP",
+            "Take your DNA with you",
+            "Copy a profile link or README snippet, export JSON, or save your report as PDF.",
+          ],
+        ].map(([n, title, body]) => (
+          <article className="panel" key={n}>
+            <span className="eyebrow">{n}</span>
+            <h3>{title}</h3>
+            <p className="muted">{body}</p>
+          </article>
+        ))}
+      </section>
+      <footer className="footer">
+        <span>✳ Built for curious developers.</span>
+        <span>Open source · Made by Philippe Godfroy</span>
       </footer>
     </main>
   );

@@ -29,10 +29,8 @@ jobs:
       - name: Verify CLI entry point
         run: node src/index.js --help
 
-      - name: Smoke test — fetch real profile
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node src/index.js KippieG
+      - name: Test analysis and API errors
+        run: npm test
 
   web:
     name: Web — Next.js build
