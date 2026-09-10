@@ -14,7 +14,7 @@ if (!username || help) {
   console.log("        GITHUB_TOKEN=ghp_... devdna <username>");
   console.log("\nExamples:");
   console.log("        devdna torvalds");
-  console.log("        devdna KippieG");
+  console.log("        devdna octocat");
   process.exit(help ? 0 : 1);
 }
 
