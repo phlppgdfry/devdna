@@ -18,6 +18,8 @@ A playful GitHub identity lab: discover your developer traits, explore your lang
 - **Your rhythm:** hourly public pushes in UTC and weekday totals.
 - **Exploration log:** active repositories, pull request events, and star events in the sample.
 - **Project showcase:** most-starred sampled original repositories and common topics.
+- **DNA card:** download a standalone SVG profile card for a portfolio or README.
+- **Flexible search:** enter a username, @handle, or full GitHub profile URL.
 - **Keep and share:** copy the profile URL or a README link, download JSON, or print/save PDF through your browser.
 - **Useful states:** loading feedback, invalid-username validation, empty-data explanations, and retryable API errors.
 - **Matching CLI and web analysis:** one shared engine, with regression tests.
@@ -100,7 +102,7 @@ CI runs deterministic CLI tests and a production web build. Lockfiles are commit
 ## Next ideas
 
 - Compare two developer profiles side by side.
-- Export an illustrated profile card as PNG/SVG.
+- Export profile cards as PNG in addition to SVG.
 - Optional local-time selection for push charts.
 - Explore more than 300 repositories with explicit pagination controls.
 

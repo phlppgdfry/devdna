@@ -73,7 +73,7 @@ export default function Home() {
           [
             "03 / KEEP",
             "Take your DNA with you",
-            "Copy a profile link or README snippet, export JSON, or save your report as PDF.",
+            "Download your DNA card, copy a README link, export JSON, or save your report as PDF.",
           ],
         ].map(([n, title, body]) => (
           <article className="panel" key={n}>

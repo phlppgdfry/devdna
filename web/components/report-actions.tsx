@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
+import type { DNAData } from "../lib/github";
+import { createShareCard } from "../lib/share-card.js";
 export default function ReportActions({
   username,
   report,
 }: {
   username: string;
-  report: unknown;
+  report: DNAData;
 }) {
   const [status, setStatus] = useState("");
   async function copy(markdown = false) {
@@ -21,16 +23,23 @@ export default function ReportActions({
       );
     }
   }
-  function download() {
+  function download(card = false) {
     const url = URL.createObjectURL(
-      new Blob([JSON.stringify(report, null, 2)], { type: "application/json" }),
+      new Blob(
+        [card ? createShareCard(report) : JSON.stringify(report, null, 2)],
+        { type: card ? "image/svg+xml" : "application/json" },
+      ),
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = `devdna-${username}.json`;
+    a.download = `devdna-${username}.${card ? "svg" : "json"}`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setStatus("JSON report downloaded.");
+    setStatus(
+      card
+        ? "DNA card downloaded. Add it to your portfolio or README."
+        : "JSON report downloaded.",
+    );
   }
   return (
     <div>
@@ -41,7 +50,10 @@ export default function ReportActions({
         <button className="button" onClick={() => copy(true)}>
           ⌘ README snippet
         </button>
-        <button className="button" onClick={download}>
+        <button className="button" onClick={() => download(true)}>
+          ◈ Download DNA card
+        </button>
+        <button className="button" onClick={() => download()}>
           ↓ JSON
         </button>
         <button className="button" onClick={() => window.print()}>

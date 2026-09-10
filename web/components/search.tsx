@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { normalizeUsername } from "../lib/username.js";
 export default function Search() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -11,16 +12,13 @@ export default function Search() {
         className="search"
         onSubmit={(event) => {
           event.preventDefault();
-          const username = String(
-            new FormData(event.currentTarget).get("username") || "",
-          )
-            .trim()
-            .replace(/^@/, "");
-          if (
-            !/^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(username) ||
-            username.includes("--")
-          ) {
-            setError("Enter a GitHub username, for example octocat.");
+          const username = normalizeUsername(
+            new FormData(event.currentTarget).get("username"),
+          );
+          if (!username) {
+            setError(
+              "Enter a username or GitHub profile URL, for example github.com/octocat.",
+            );
             return;
           }
           setError("");
@@ -32,12 +30,12 @@ export default function Search() {
           aria-label="GitHub username"
           aria-describedby="search-error"
           name="username"
-          placeholder="Your GitHub username"
+          placeholder="Username or GitHub profile URL"
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
           required
-          maxLength={40}
+          maxLength={200}
         />
         <button className="button primary" disabled={pending}>
           {pending ? "Sequencing…" : "Decode my DNA ↗"}
