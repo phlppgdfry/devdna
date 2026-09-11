@@ -97,6 +97,10 @@ test/                        Deterministic analysis and API regression tests
 
 The shared engine lives inside `web` so the dashboard can deploy independently using `web` as its root. The CLI repository/package must include `web/lib/analyzer.js` and `web/package.json`.
 
+## Release and production access
+
+See [v2.0.0 changes and known limitations](CHANGELOG.md). For reliable hosted API access, follow the [dedicated public-read-only token setup](docs/server-access.md). Automated CI uses fictional GitHub data and does not require a production token.
+
 ## Validate and deploy
 
 ```sh
@@ -106,7 +110,7 @@ npm run build:web
 
 On Vercel, import the repository, choose **web** as the root directory, and optionally configure `GITHUB_TOKEN`. The landing page is static; profiles render on the server. Deployment is separate from local development.
 
-CI runs deterministic CLI tests and a production web build. Lockfiles are committed so `npm ci` is reproducible.
+CI runs unit tests, a production web build, and 33 browser scenarios across desktop Chromium, mobile Chromium and WebKit. See [testing instructions](docs/testing.md). Lockfiles are committed so `npm ci` is reproducible.
 
 ## Browser-local data
 

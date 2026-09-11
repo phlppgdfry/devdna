@@ -1,7 +1,7 @@
 {
   "name": "devdna",
-  "version": "1.0.0",
-  "description": "🧬 Uncover your GitHub DNA — beautiful terminal + web report",
+  "version": "2.0.0",
+  "description": "\ud83e\uddec Uncover your GitHub DNA \u2014 beautiful terminal + web report",
   "type": "module",
   "bin": {
     "devdna": "./src/index.js"
@@ -10,7 +10,8 @@
     "start": "node src/index.js",
     "dev:web": "npm run dev --prefix web",
     "build:web": "npm run build --prefix web",
-    "test": "node --test"
+    "test": "node --test test/*.test.js",
+    "test:e2e": "npm run test:e2e --prefix web"
   },
   "engines": {
     "node": ">=18"
