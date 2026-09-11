@@ -22,9 +22,9 @@ const BACKEND_LANGS = new Set([
   "Scala",
 ]);
 
-export function analyze({ user, repos, events }) {
+export function analyze({ user, repos, events }, timezone = "UTC") {
   const languages = analyzeLanguages(repos);
-  const timing = analyzeTiming(events);
+  const timing = analyzeTiming(events, timezone);
   const activity = analyzeActivity(events);
   const stats = analyzeStats(repos);
   const dnaTraits = computeDNATraits({
@@ -48,7 +48,7 @@ export function analyze({ user, repos, events }) {
       repositories: repos.length,
       events: events.length,
       pushes: timing.pushCount,
-      timezone: "UTC",
+      timezone,
       languageMethod: "Primary language per non-fork repository",
       repositoryLimit: 300,
       eventLimit: 300,
@@ -71,7 +71,6 @@ function analyzeLanguages(repos) {
 
   return Object.entries(bytes)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
     .map(([lang, size]) => ({
       lang,
       pct: Math.round((size / total) * 100),
@@ -79,7 +78,13 @@ function analyzeLanguages(repos) {
     }));
 }
 
-function analyzeTiming(events) {
+export function analyzeTiming(events, timezone = "UTC") {
+  const format = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    weekday: "short",
+    hourCycle: "h23",
+  });
   const hours = new Array(24).fill(0);
   const days = new Array(7).fill(0);
   let pushCount = 0;
@@ -88,8 +93,13 @@ function analyzeTiming(events) {
     if (event.type !== "PushEvent") continue;
     const date = new Date(event.created_at);
     if (Number.isNaN(date.getTime())) continue;
-    hours[date.getUTCHours()]++;
-    days[date.getUTCDay()]++;
+    const parts = format.formatToParts(date);
+    const hour = Number(parts.find((p) => p.type === "hour").value);
+    const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(
+      parts.find((p) => p.type === "weekday").value,
+    );
+    hours[hour]++;
+    days[day]++;
     pushCount++;
   }
 
@@ -167,7 +177,7 @@ function analyzeStats(repos) {
   };
 }
 
-function computeDNATraits({ user, languages, timing, stats, activity }) {
+export function computeDNATraits({ user, languages, timing, stats, activity }) {
   const traits = [];
   const topLang = languages[0]?.lang;
 

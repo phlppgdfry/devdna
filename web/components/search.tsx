@@ -1,10 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "./preferences";
 import { normalizeUsername } from "../lib/username.js";
 export default function Search() {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
+  const { t } = useLocale();
+  const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
   return (
     <>
@@ -17,20 +19,27 @@ export default function Search() {
           );
           if (!username) {
             setError(
-              "Enter a username or GitHub profile URL, for example github.com/octocat.",
+              t(
+                "Enter a username or GitHub profile URL, for example github.com/octocat.",
+                "Vul een gebruikersnaam of GitHub-profiel-URL in, bijvoorbeeld github.com/octocat.",
+              ),
             );
             return;
           }
           setError("");
-          setPending(true);
-          router.push(`/${encodeURIComponent(username)}`);
+          startTransition(() =>
+            router.push(`/${encodeURIComponent(username)}`),
+          );
         }}
       >
         <input
-          aria-label="GitHub username"
+          aria-label={t("GitHub username", "GitHub-gebruikersnaam")}
           aria-describedby="search-error"
           name="username"
-          placeholder="Username or GitHub profile URL"
+          placeholder={t(
+            "Username or GitHub profile URL",
+            "Gebruikersnaam of GitHub-profiel-URL",
+          )}
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
@@ -38,7 +47,9 @@ export default function Search() {
           maxLength={200}
         />
         <button className="button primary" disabled={pending}>
-          {pending ? "Sequencing…" : "Decode my DNA ↗"}
+          {pending
+            ? t("Sequencing…", "DNA ontleden…")
+            : t("Decode my DNA ↗", "Ontdek mijn DNA ↗")}
         </button>
       </form>
       <p id="search-error" role="status" className="caption">

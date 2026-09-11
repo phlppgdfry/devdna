@@ -5,3 +5,5 @@ web/.next/
 .env.local
 *.log
 .DS_Store
+
+*.tsbuildinfo

@@ -12,17 +12,18 @@ A playful GitHub identity lab: discover your developer traits, explore your lang
 
 ## Inside the lab
 
-- **A fresh visual identity:** mint and lavender colors, animated DNA specimen, responsive profile cards, reduced-motion support, and keyboard focus indicators.
-- **Your developer traits:** playful labels such as Mobile Architect, True Polyglot, and Night Owl, based on observable signals.
-- **Language palette:** primary-language share across original repositories.
-- **Your rhythm:** hourly public pushes in UTC and weekday totals.
-- **Exploration log:** active repositories, pull request events, and star events in the sample.
-- **Project showcase:** most-starred sampled original repositories and common topics.
-- **DNA card:** download a standalone SVG profile card for a portfolio or README.
-- **Flexible search:** enter a username, @handle, or full GitHub profile URL.
-- **Keep and share:** copy the profile URL or a README link, download JSON, or print/save PDF through your browser.
-- **Useful states:** loading feedback, invalid-username validation, empty-data explanations, and retryable API errors.
-- **Matching CLI and web analysis:** one shared engine, with regression tests.
+- **Compare profiles:** side-by-side languages, push rhythm, shared traits, and normalized hourly overlap at `/compare`.
+- **PNG and SVG cards:** download a 1600 × 1280 PNG or a scalable SVG, with an instant preview.
+- **Four card themes:** Cyberpunk, Terminal, Minimal, and Light.
+- **Local timezones:** select an IANA timezone or use the browser timezone. Each push timestamp respects daylight-saving changes.
+- **Personal DNA story:** a playful, rule-based summary with the evidence behind each trait.
+- **Interactive language palette:** click a language to see its repositories; byte mode shows each codebase's byte contribution.
+- **Extended analysis:** opt into up to 1,000 public repositories and a progressive scan of actual language bytes for every sampled original repository.
+- **Evolution snapshots:** save local snapshots and compare repository, follower, star, and language-share changes on later visits.
+- **English first, Dutch optional:** a persistent language switch covers the interface and card exports.
+- **Recent discoveries:** revisit up to eight profiles stored locally, with a clear-history button and no login.
+- **Share and export:** profile links, README links, JSON reports, and browser print/PDF.
+- **Accessible interface:** responsive layouts, keyboard focus, reduced motion, loading states, honest empty states, and retryable errors.
 
 These are playful interpretations, not a developer ranking or an assessment of ability.
 
@@ -52,23 +53,29 @@ Optionally set `GITHUB_TOKEN` in the server environment (or `web/.env.local` for
 
 ## What the data actually means
 
-Each report samples **up to 300 public repositories**, sorted by most recent push, and **up to 300 public events**. GitHub controls how much event history is available. This is not a complete contribution history. Profiles with more than 300 repositories have partial repository totals. Web requests are cached for one hour.
+Quick reports sample **up to 300 public repositories**; extended reports sample **up to 1,000**, sorted by most recent push. Both modes sample **up to 300 public events**. GitHub controls the available event history. Larger profiles remain partial. Web requests are cached for one hour.
 
-**Language percentages** count each non-fork repository with a primary language once, then show the top six languages. They do not measure bytes, lines of code, time spent, or proficiency. Omitted languages and rounding can mean displayed shares do not add up to 100%.
+**Repository-share mode** counts each original repository with a detected primary language once. The palette initially shows eight languages and can expand to all languages. Cards show the top six. These shares do not measure proficiency or time spent.
 
-**Push rhythm** uses event timestamps in UTC, not inferred local time and not individual commit timestamps. The timing trait follows the busiest six-hour UTC period: night (00–06), morning (06–12), afternoon (12–18), or evening (18–24). Ties use night, morning, evening, then afternoon priority. No pushes means no timing trait.
+**Codebase-byte mode** fetches [GitHub's language breakdown](https://docs.github.com/en/rest/repos/repos#list-repository-languages) for each sampled original repository. It sums bytes across codebases; larger repositories weigh more. Secondary languages are included. Progress and partial coverage stay visible, and the scan can be paused and resumed while the page remains open. Switching profiles or reloading clears in-memory scan progress; GitHub responses remain cached. Snapshots require the byte scan to finish.
+
+The byte endpoint serves ten repositories per batch with at most five simultaneous GitHub calls. Only repositories from the public profile listing are eligible. Large scans require many API calls and may hit GitHub rate limits; existing results are retained for a later retry. Configure a server-side `GITHUB_TOKEN` for more headroom. Without it, a large scan may not finish in a single rate-limit window. Tokens never enter client bundles or local snapshots.
+
+**Push rhythm** uses push-event timestamps, not individual commits. UTC is the initial timezone; changing it recomputes hours, weekdays, timing traits, and export contents. The busiest six-hour period determines the time trait: night (00–06), morning (06–12), afternoon (12–18), or evening (18–24). Ties prefer night, morning, evening, then afternoon. No pushes means no timing trait.
+
+**Comparison** uses primary-repository shares on both sides and the same selected timezone. Hourly overlap normalizes each profile's push counts and sums the smaller share at every hour. Missing activity shows “not enough data”, not zero similarity. Different event windows and sample sizes limit interpretation.
 
 **Commit style** uses commit messages only when present in event payloads. If GitHub supplies no messages, the style is Unknown. No extra commit API calls are made.
 
-| Trait | Signal |
-|---|---|
-| Mobile Architect | Leading primary language is Swift, Kotlin, Dart, or Objective-C |
-| UI Craftsman | Leading language is JavaScript, TypeScript, CSS, HTML, Vue, or Svelte |
-| Backend Pragmatist | Leading language belongs to the backend language set in the analyzer |
-| Systems Thinker | Another leading language |
-| Polyglot / True Polyglot | At least 3 / 5 primary languages |
-| Builder / Prolific Creator | At least 15 / 40 public repositories on the profile |
-| Open Source Contributor / Hero | At least 100 / 500 sampled original-repository stars |
+| Trait                          | Signal                                                                       |
+| ------------------------------ | ---------------------------------------------------------------------------- |
+| Mobile Architect               | Leading language in the selected mode is Swift, Kotlin, Dart, or Objective-C |
+| UI Craftsman                   | Leading language is JavaScript, TypeScript, CSS, HTML, Vue, or Svelte        |
+| Backend Pragmatist             | Leading language belongs to the backend language set in the analyzer         |
+| Systems Thinker                | Another leading language                                                     |
+| Polyglot / True Polyglot       | At least 3 / 5 observed languages                                            |
+| Builder / Prolific Creator     | At least 15 / 40 public repositories on the profile                          |
+| Open Source Contributor / Hero | At least 100 / 500 sampled original-repository stars                         |
 
 Star and repository labels describe public signals, not the quality of a developer's work. An API failure is surfaced as an error rather than silently producing an empty report.
 
@@ -82,7 +89,9 @@ src/renderer.js              Terminal report
 web/lib/analyzer.js          Shared CLI/web analysis engine
 web/lib/github.ts            Cached web API client and report adapter
 web/app/                     Landing, report, loading, and error pages
-web/components/              Search, animated specimen, report actions
+web/components/              Bilingual profile lab, comparison, exports, local history
+web/lib/insights.js           Timezone views, byte aggregation, comparison, snapshots
+web/app/api/languages/        Bounded public-codebase scan endpoint
 test/                        Deterministic analysis and API regression tests
 ```
 
@@ -99,12 +108,11 @@ On Vercel, import the repository, choose **web** as the root directory, and opti
 
 CI runs deterministic CLI tests and a production web build. Lockfiles are committed so `npm ci` is reproducible.
 
-## Next ideas
+## Browser-local data
 
-- Compare two developer profiles side by side.
-- Export profile cards as PNG in addition to SVG.
-- Optional local-time selection for push charts.
-- Explore more than 300 repositories with explicit pagination controls.
+The app keeps only your chosen interface language, eight recent usernames, and up to 100 explicitly saved snapshots in local storage. Snapshots contain public aggregate metrics, language shares, traits, timezone, method, repository limit, and timestamps. They are not uploaded. Clearing browser data removes them; storage failures show a message instead of a false success.
+
+Snapshots compare the current report against a selected saved report. Language and star deltas require the same account, timezone, method, repository limit, and a complete byte scan. Public repository and follower deltas can still be shown when analysis settings differ. Cached responses may legitimately produce zero changes; changing public activity windows or samples does not measure productivity.
 
 ## Contributing
 

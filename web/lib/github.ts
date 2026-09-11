@@ -1,3 +1,4 @@
+import { collectRepositories } from "./pagination.js";
 import { analyze } from "./analyzer.js";
 const BASE = "https://api.github.com";
 
@@ -11,15 +12,26 @@ function makeHeaders() {
   };
 }
 
-async function get<T>(path: string): Promise<T> {
+export async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: makeHeaders(),
     signal: AbortSignal.timeout(15000),
     next: { revalidate: 3600 }, // cache 1 hour
   });
   if (res.status === 404) throw new GitHubError("User not found", 404);
-  if (res.status === 403 || res.status === 429)
-    throw new Error("Rate limit exceeded");
+  if (
+    res.status === 429 ||
+    (res.status === 403 &&
+      (res.headers.get("x-ratelimit-remaining") === "0" ||
+        res.headers.has("retry-after")))
+  ) {
+    const reset = Number(res.headers.get("x-ratelimit-reset"));
+    throw new GitHubError(
+      "Rate limit exceeded",
+      429,
+      reset ? new Date(reset * 1000).toISOString() : undefined,
+    );
+  }
   if (!res.ok) throw new Error(`GitHub error: ${res.status}`);
   return res.json();
 }
@@ -28,6 +40,7 @@ export class GitHubError extends Error {
   constructor(
     message: string,
     public status: number,
+    public retryAt?: string,
   ) {
     super(message);
   }
@@ -69,35 +82,87 @@ export interface GHEvent {
 }
 
 export async function fetchUser(username: string) {
-  return get<GHUser>(`/users/${username}`);
+  const {
+    login,
+    name,
+    bio,
+    avatar_url,
+    location,
+    followers,
+    following,
+    public_repos,
+    created_at,
+    html_url,
+  } = await get<GHUser>(`/users/${username}`);
+  return {
+    login,
+    name,
+    bio,
+    avatar_url,
+    location,
+    followers,
+    following,
+    public_repos,
+    created_at,
+    html_url,
+  };
 }
 
-export async function fetchRepos(username: string) {
-  const pages = await Promise.all(
-    [1, 2, 3].map((p) =>
+export async function fetchRepos(username: string, limit = 300, count = limit) {
+  const repos = (await collectRepositories(
+    (page: number) =>
       get<GHRepo[]>(
-        `/users/${username}/repos?per_page=100&page=${p}&sort=pushed&type=owner`,
+        `/users/${username}/repos?per_page=100&page=${page}&sort=pushed&type=owner`,
       ),
-    ),
+    limit,
+    count,
+  )) as GHRepo[];
+  // Keep large scans below response limits by sending only fields the UI needs.
+  return repos.map(
+    ({
+      id,
+      name,
+      description,
+      language,
+      stargazers_count,
+      forks_count,
+      fork,
+      size,
+      topics,
+      html_url,
+    }) => ({
+      id,
+      name,
+      description,
+      language,
+      stargazers_count,
+      forks_count,
+      fork,
+      size,
+      topics,
+      html_url,
+    }),
   );
-  const seen = new Set<number>();
-  return pages.flat().filter((r) => {
-    if (seen.has(r.id)) return false;
-    seen.add(r.id);
-    return true;
-  });
 }
 
 export async function fetchEvents(username: string) {
-  const pages = await Promise.all(
-    [1, 2, 3].map((p) =>
-      get<GHEvent[]>(`/users/${username}/events/public?per_page=100&page=${p}`),
-    ),
-  );
-  return pages.flat();
+  const events: GHEvent[] = [];
+  for (let page = 1; page <= 3; page++) {
+    const batch = await get<GHEvent[]>(
+      `/users/${username}/events/public?per_page=100&page=${page}`,
+    );
+    events.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return events;
 }
 
 export interface DNAData {
+  repositories: GHRepo[];
+  pushTimestamps: string[];
+  generatedAt: string;
+  languageMode: "repositories" | "bytes";
+  byteCoverage?: { completed: number; total: number };
   user: GHUser;
   languages: Array<{ lang: string; pct: number; repos: number }>;
   peakHour: number | null;
@@ -126,21 +191,34 @@ export interface DNAData {
   topTopics: string[];
 }
 
-export async function getDNA(username: string): Promise<DNAData> {
+export async function getDNA(
+  username: string,
+  extended = false,
+): Promise<DNAData> {
   if (
     !/^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(username) ||
     username.includes("--")
   )
     throw new GitHubError("Invalid username", 404);
-  const [user, repos, events] = await Promise.all([
-    fetchUser(username),
-    fetchRepos(username),
-    fetchEvents(username),
+  const user = await fetchUser(username);
+  const limit = extended ? 1000 : 300;
+  const [repos, events] = await Promise.all([
+    fetchRepos(user.login, limit, user.public_repos),
+    fetchEvents(user.login),
   ]);
 
   const result = analyze({ user, repos, events });
   return {
     user,
+    repositories: repos,
+    generatedAt: new Date().toISOString(),
+    languageMode: "repositories",
+    pushTimestamps: events
+      .filter(
+        (e) =>
+          e.type === "PushEvent" && Number.isFinite(Date.parse(e.created_at)),
+      )
+      .map((e) => e.created_at),
     languages: result.languages,
     peakHour: result.timing.peakHour,
     hours: result.timing.hours,
@@ -150,7 +228,7 @@ export async function getDNA(username: string): Promise<DNAData> {
     traits: result.dnaTraits,
     commitStyle: result.commitStyle,
     topTopics: result.stats.topTopics,
-    coverage: result.coverage,
+    coverage: { ...result.coverage, repositoryLimit: limit },
     activity: result.activity,
   };
 }

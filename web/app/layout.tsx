@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Preferences } from "../components/preferences";
 export const metadata: Metadata = {
   title: "DevDNA — Your code tells a story",
   description:
@@ -12,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Preferences>{children}</Preferences>
+      </body>
     </html>
   );
 }
