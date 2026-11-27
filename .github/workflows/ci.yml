@@ -12,7 +12,7 @@ permissions:
 jobs:
   cli:
     name: CLI — Node ${{ matrix.node }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright can't install browsers on ubuntu-26.04 yet
     strategy:
       matrix:
         node: [18, 20, 22]
@@ -37,7 +37,7 @@ jobs:
 
   web:
     name: Web — Next.js build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright can't install browsers on ubuntu-26.04 yet
 
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +61,7 @@ jobs:
 
   browser:
     name: Browser flows — Chromium, mobile, WebKit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright can't install browsers on ubuntu-26.04 yet
     timeout-minutes: 15
     defaults:
       run:
